@@ -10,7 +10,6 @@ import time
 import random
 import math
 
-NUMBER_OF_PARTICLES=100
 
 def initInterface(interface, motors):
     interface.initialize()
@@ -64,45 +63,44 @@ def turn(angleDeg, interface, motors):
         motorAngles = interface.getMotorAngles(motors)
         time.sleep(0.1)
 
-def initParticles():
+def initParticles(NUMBER_OF_PARTICLES):
     particleSet=[]
     weight = 1/NUMBER_OF_PARTICLES
-    tuple =(100,100,0)
+    tuple =(200,200,0)
     for i in range(NUMBER_OF_PARTICLES):
         particleSet.append(tuple)
         
     return particleSet
 
-
-def go10Cm(interface, motors,particleSet):
+def go10Cm(interface, motors, particleSet):
     ePer10cm=1
     fPer10cm=1
+    sc = 5
     D=40
     newparticleSet=[]
-
-    goStraight(10, interface, motors)
+    
+    goStraight(D, interface, motors)
     for particle in particleSet:
         error = random.gauss(0,ePer10cm)
         
-        x = particle[0]+(D+error)*math.cos(particle[2]/(2*3.14))
-        y = particle[1]+(D+error)*math.sin(particle[2]/(2*3.14))
+        x = particle[0]+((D+error)*math.cos(particle[2]/(360)*2*3.14))*sc
+        y = particle[1]+((D+error)*math.sin(particle[2]/(360)*2*3.14))*sc
         theta = (particle[2]+random.gauss(0,fPer10cm))%360
         particle = (x, y, theta)
         newparticleSet.append(particle)
         
     return (newparticleSet)
+
             
-def turn90Deg(interface, motors,particleSet):
+def turn90Deg(interface, motors, particleSet):
     gPer90=5
-    turn=90
+    newparticleSet=[]
+    angle = 90
 
-    turn(90,interface, motors)
+    turn(angle, interface, motors)
     for particle in particleSet:
-        particle[0][2]=(particle[0][2]+turn+random.gauss(0,gPer90))%360
+        new_angle = (particle[2] + angle + random.gauss(0,gPer90))%360
+        new_particle = (particle[0], particle[1], new_angle)
+        newparticleSet.append(new_particle)
 
-    for particle in particleSet:
-            print "drawParticles:" + str(particle[0])
-
-
-    
-    
+    return (newparticleSet)
