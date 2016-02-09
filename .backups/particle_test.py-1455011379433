@@ -1,0 +1,18 @@
+import brickpi
+import time
+import random
+from bot_utilities import *
+
+interface=brickpi.Interface()
+interface.initialize()
+
+motors = [2,3]
+
+initInterface(interface, motors)
+
+particleSet=[]
+
+initParticles(particleSet)
+
+
+go40Cm(interface, motors,particleSet)

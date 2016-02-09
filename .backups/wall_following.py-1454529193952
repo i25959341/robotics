@@ -1,0 +1,64 @@
+import brickpi
+import time
+from collections import deque
+
+interface=brickpi.Interface()
+interface.initialize()
+
+port =0
+motors = [2,3]
+speed = 4.0
+
+interface.sensorEnable(port, brickpi.SensorType.SENSOR_ULTRASONIC);
+interface.motorEnable(motors[0])
+interface.motorEnable(motors[1])
+
+motorParams = interface.MotorAngleControllerParameters()
+motorParams.maxRotationAcceleration = 6.0
+motorParams.maxRotationSpeed = 12.0
+motorParams.feedForwardGain = 255/20.0
+motorParams.minPWM = 18.0
+motorParams.pidParameters.minOutput = -255
+motorParams.pidParameters.maxOutput = 255
+motorParams.pidParameters.k_p = 100.0
+motorParams.pidParameters.k_i = 0.0
+motorParams.pidParameters.k_d = 0.0
+
+interface.setMotorAngleControllerParameters(motors[0],motorParams)
+interface.setMotorAngleControllerParameters(motors[1],motorParams)
+
+interface.setMotorRotationSpeedReferences(motors,[speed,speed])
+
+speed0=speed
+speed1=speed
+k_p_wall=5
+
+desired = 20
+readings = deque([])
+
+print "Press Ctrl+C to exit"
+
+
+#look left or look right
+#360 sonar or just on top
+while True:
+    usReading = interface.getSensorValue(port)
+    
+    if(usReading<250):
+        if(len(readings)<3):
+            readings.append(usReading[0])
+            error = usReading[0]-desired
+        else:
+            readings.append(usReading[0])
+            readings.popleft()
+            error = reading[1]-desired
+            
+        speed0=speed-0.5*k_p_wall*error
+        speed1=speed+0.5*k_p_wall*error
+        
+    else:
+        speed0=speed
+        speed1=speed
+    
+    interface.setMotorRotationSpeedReferences(motors,[speed0,speed1])
+    time.sleep(5)

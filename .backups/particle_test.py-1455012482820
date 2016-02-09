@@ -1,0 +1,25 @@
+import brickpi
+import time
+import random
+import time
+import sys
+import random
+import numpy as np
+from bot_utilities import *
+
+interface=brickpi.Interface()
+interface.initialize()
+
+motors = [2,3]
+
+initInterface(interface, motors)
+
+particleSet=initParticles()
+
+print particleSet
+
+
+#go40Cm(interface, motors,particleSet)
+#goStraight(10, interface, motors)
+for particle in particleSet:
+    print "drawParticles:" + str(particle)

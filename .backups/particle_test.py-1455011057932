@@ -1,0 +1,8 @@
+import brickpi
+import time
+import random
+import bot_utilities
+
+interface=brickpi.Interface()
+interface.initialize()
+

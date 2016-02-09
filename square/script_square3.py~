@@ -1,0 +1,28 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Thu Jan 28 16:49:55 2016
+
+@author: 
+"""
+
+from bot_utilities import *
+
+import brickpi
+import time
+
+interface=brickpi.Interface()
+motors = [2, 3]
+initInterface(interface, motors)
+
+for i in range(1):
+#    turn(360,interface,motors)
+    goStraight(20, interface, motors)
+#    turn(90, interface, motors)
+#    goStraight(40, interface, motors)
+#    turn(90, interface, motors)
+#    goStraight(40, interface, motors)
+#    turn(90, interface, motors)
+#    goStraight(40, interface, motors)
+#    turn(90, interface, motors)
+
+interface.terminate()
