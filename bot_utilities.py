@@ -66,7 +66,7 @@ def turn(angleDeg, interface, motors):
 def initParticles(NUMBER_OF_PARTICLES):
     particleSet=[]
     weight = 1/NUMBER_OF_PARTICLES
-    tuple =(200,200,0)
+    tuple =(0,0,0)
     for i in range(NUMBER_OF_PARTICLES):
         particleSet.append(tuple)
         
@@ -75,16 +75,14 @@ def initParticles(NUMBER_OF_PARTICLES):
 def go10Cm(interface, motors, particleSet):
     ePer10cm=1
     fPer10cm=1
-    sc = 5
     D=40
     newparticleSet=[]
     
     goStraight(D, interface, motors)
     for particle in particleSet:
-        error = random.gauss(0,ePer10cm)
-        
-        x = particle[0]+((D+error)*math.cos(particle[2]/(360)*2*3.14))*sc
-        y = particle[1]+((D+error)*math.sin(particle[2]/(360)*2*3.14))*sc
+        error = random.gauss(0,ePer10cm)        
+        x = particle[0]+((D+error)*math.cos(particle[2]/(360)*2*3.14))
+        y = particle[1]+((D+error)*math.sin(particle[2]/(360)*2*3.14))
         theta = (particle[2]+random.gauss(0,fPer10cm))%360
         particle = (x, y, theta)
         newparticleSet.append(particle)
@@ -104,3 +102,114 @@ def turn90Deg(interface, motors, particleSet):
         newparticleSet.append(new_particle)
 
     return (newparticleSet)
+
+def scale(particleSet):
+    newparticleSet=[]
+    offset=200
+    scale=10
+    
+    for particle in particleSet:
+        newx = particle[0]*scale+offset
+        newy = particle[1]*scale+offset
+        newtheta = particle[2]
+        new_particle = ( newx , newy , newtheta)
+        newparticleSet.append(new_particle)        
+    return (newparticleSet)
+
+def position(particleSet,NUMBER_OF_PARTICLES):
+    sumX=0
+    sumY=0
+    sumTheta=0
+    
+    for particle in particleSet:
+        sumX=sumX+particle[0]
+        sumY=sumY+particle[1]
+        sumTheta=sumTheta+particle[2]
+        
+    sumX=sumX/NUMBER_OF_PARTICLES
+    sumY=sumY/NUMBER_OF_PARTICLES
+    sumTheta=(sumTheta/NUMBER_OF_PARTICLES)%360
+    
+    return (sumX,sumY,sumTheta)
+    
+    
+
+def go(distCm,interface, motors, particleSet):
+    ePer10cmSqt=1
+    fPer10cmSqt=1
+    
+    ePer10cm=math.sqrt(ePer10cmSqt*abs(distCm)/10)
+    fPer10cm=math.sqrt(ePer10cmSqt*abs(distCm)/10)
+    
+    D=distCm
+    newparticleSet=[]
+    
+    goStraight(D, interface, motors)
+    
+    for particle in particleSet:
+        error = random.gauss(0,ePer10cm)        
+        x = particle[0]+((D+error)*math.cos(particle[2]/(360)*2*3.14))
+        y = particle[1]+((D+error)*math.sin(particle[2]/(360)*2*3.14))
+        theta = (particle[2]+random.gauss(0,fPer10cm))%360
+        particle = (x, y, theta)
+        newparticleSet.append(particle)
+        
+    return (newparticleSet)
+    
+def rotate(angleDeg,interface, motors, particleSet):
+    gPer90Sqt=25
+    
+    gPer90=math.sqrt(gPer90Sqt*abs(angleDeg)/90)
+    newparticleSet=[]
+    angle = angleDeg
+
+    turn(angle, interface, motors)
+    for particle in particleSet:
+        new_angle = (particle[2] + angle + random.gauss(0,gPer90))%360
+        new_particle = (particle[0], particle[1], new_angle)
+        newparticleSet.append(new_particle)
+
+    return (newparticleSet)
+    
+    
+    
+def navigate(interface, motors,particleSet):
+    currentX=0
+    currentY=0
+    currentTheta=0
+    
+    pi=3.14159265359
+    
+    print "Ctr-C to cancel"
+    
+    while True:
+        destX=input('Please Enter the X co-ordinate  ')
+        destY=input('Please Enter the Y co-ordinate  ')
+        
+        dx = destX - currentX
+        dy = destY - currentY
+        
+        
+        D = math.sqrt(dx*dx+dy+dy)
+        alpha = math.atan2(dy,dx)
+        
+        beta = alpha - currentTheta/360*2*pi
+    
+        if beta > pi:
+            beta = beta - 2*pi
+        elif beta<=-pi:
+            beta = beta + 2*pi
+
+        newparticleSet = rotate(360*beta/(2*pi),interface, motors, particleSet)
+        newparticleSet2 = go(D,interface, motors, newparticleSet)
+    
+        currentposition = position(newparticleSet2,100)
+        
+        currentX=currentposition[0]
+        currentY=currentposition[1]
+        currentTheta=currentposition[2]
+        #currentX=destX
+        #currentY=destY
+        #currentTheta=alpha
+        
+        

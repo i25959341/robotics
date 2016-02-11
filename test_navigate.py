@@ -31,12 +31,5 @@ newparticleSet = scale(particleSet)
 
 print "drawParticles:" + str(newparticleSet)
 
-for i in range(5):
-    particleSet = go10Cm(interface, motors, particleSet)
-    newparticleSet = scale(particleSet)
-    print "drawParticles:" + str(newparticleSet)
-    print newparticleSet
-    particleSet = turn90Deg(interface, motors, particleSet)
-    newparticleSet = scale(particleSet)
-    print "drawParticles:" + str(newparticleSet)
-    print newparticleSet
+
+navigate(interface, motors,particleSet)

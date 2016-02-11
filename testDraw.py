@@ -14,7 +14,7 @@ def getRandomTheta():
 
 numberOfParticles = 100
 
-line1 = (10, 10, 10, 500) # (x0, y0, x1, y1)
+line1 = (200, 200, 0, 500) # (x0, y0, x1, y1)
 line2 = (20, 20, 500, 200)  # (x0, y0, x1, y1)
 
 print "drawLine:" + str(line1)
