@@ -55,7 +55,7 @@ def goStraight(distCm, interface, motors):
     
 
 def turn(angleDeg, interface, motors):
-    radianPerDegre = 0.06355
+    radianPerDegre = 0.06405
     angle = angleDeg * radianPerDegre 
     interface.increaseMotorAngleReferences(motors, [angle, -angle])
 
@@ -105,12 +105,13 @@ def turn90Deg(interface, motors, particleSet):
 
 def scale(particleSet):
     newparticleSet=[]
-    offset=200
+    offsetx=200
+    offsety=600
     scale=10
     
     for particle in particleSet:
-        newx = particle[0]*scale+offset
-        newy = particle[1]*scale+offset
+        newx = particle[0]*scale+offsetx
+        newy = -particle[1]*scale+offsety
         newtheta = particle[2]
         new_particle = ( newx , newy , newtheta)
         newparticleSet.append(new_particle)        
