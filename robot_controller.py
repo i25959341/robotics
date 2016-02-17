@@ -216,38 +216,48 @@ class RobotController:
             currentY=currentposition[1]
             currentTheta=currentposition[2]
             
-    def calculate_likelihood(x, y, theta, z):
+    def calculate_likelihood(self,x, y, theta, z):
         #change theta
         theta = theta/360 * self.pi
         
-        st_dev = 0.9
+        st_dev = 1.0
         K = 0.001
         maxAngle= 0.610865
         
         hit_m = 100000
         
-        for wall in walls: 
+        for wall in self.walls:  
             (ax, ay, bx, by) = wall
-            m = ((by - ay) * (ax - x) - (bx - ax) * (ay - y)) / ((by - ay) * math.cos(theta) - (bx - ax) * math.sin(theta))
-        
+            m = ((by - ay) * (ax - x) - (bx - ax) * (ay - y)) / (((by - ay) * math.cos(theta) - (bx - ax) * math.sin(theta))+0.00000000000001)
+            
             hitting_point = (x + m * math.cos(theta), y + m * math.sin(theta))
             
             #calculate angle
             dis = math.sqrt((ay-by)**2+(bx-ax)**2) 
-            beta = math.acos(((math.cos(theta)*(ay-by)+math.sin(theta)*(bx-ax))/(dis))
+            beta = math.acos(((math.cos(theta)*(ay-by)+math.sin(theta)*(bx-ax))/dis))
             
             #check if it hits the wall
-            if (min(ax, bx) <= hitting_point[0] <= max(ax, bx) and min(ay, by) <= hitting_point[1] <= max(ay, by)):
-                if beta < maxAngle:
+            if (((min(ax, bx) <= hitting_point[0]<= max(ax, bx))) and  ( min(ay, by) <= hitting_point[1] <= max(ay, by)) ):
+                if (abs(beta) < maxAngle):
                     hit_m = min(hit_m, m)
                 
-        p = exp(-((z - m)**2) / (2 * st_dev**2)) + K
+        p = math.exp(-((z - hit_m)**2) / (2 * st_dev**2)) + K
         
         return p
+    
+    
+    def getSonarReading(self):        
+        for i in range(5):        
+            usReading[i] = interface.getSensorValue(self.port)
+
+            if !usReading :
+                print "Failed US reading"           
         
+        time.sleep(0.01)
         
+        usReading.sort()
         
-        
+        return usReading[2]
         
         
         
