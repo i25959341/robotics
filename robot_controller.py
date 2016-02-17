@@ -6,7 +6,10 @@ import math
 class RobotController:
     def __init__(self):
         self.motors = [2,3]
+        self.port = 0
         self.initInterface()
+        self.initWall()
+        self.pi =3.14159265359
 
     def initInterface(self):
         self.interface = brickpi.Interface()
@@ -15,14 +18,14 @@ class RobotController:
         self.interface.motorEnable(self.motors[0])
         self.interface.motorEnable(self.motors[1])
 
-        motorParams = self.interface.MotorAngleControllerParameters()
-        motorParams.maxRotationAcceleration = 8.0
         motorParams.maxRotationSpeed = 13.0
         motorParams.feedForwardGain = 255/20.0
         motorParams.minPWM = 18.0
         motorParams.pidParameters.minOutput = -255.0
         motorParams.pidParameters.maxOutput = 255.0
         motorParams.pidParameters.k_p = 250.0
+        motorParams = self.interface.MotorAngleControllerParameters()
+        motorParams.maxRotationAcceleration = 8.0
         motorParams.pidParameters.k_i = 809.0909
         motorParams.pidParameters.k_d = 11.0
 
@@ -39,6 +42,19 @@ class RobotController:
 
         self.interface.setMotorAngleControllerParameters(self.motors[0], motorParams)
         self.interface.setMotorAngleControllerParameters(self.motors[1], motorParams2)
+        
+        self.interface.sensorEnable(self.port, brickpi.SensorType.SENSOR_ULTRASONIC)
+        
+    def initWall(self):
+        self.wall = []
+        wall.append((0,0,0,168))
+        wall.append((0,168,84,168))
+        wall.append((84,126,84,210))
+        wall.append((84,210,168,210))
+        wall.append((168,210,168,84))
+        wall.append((168,84,210,84))
+        wall.append((210,84,210,0))
+        wall.append((210,0,0,0))
 
     def goStraight(self, distCm):
         radianPerCm = 0.3725
@@ -199,3 +215,59 @@ class RobotController:
             currentX=currentposition[0]
             currentY=currentposition[1]
             currentTheta=currentposition[2]
+            
+    def calculate_likelihood(x, y, theta, z):
+        #change theta
+        theta = theta/360 * self.pi
+        
+        st_dev = 0.9
+        K = 0.001
+        maxAngle= 0.610865
+        
+        hit_m = 100000
+        
+        for wall in walls: 
+            (ax, ay, bx, by) = wall
+            m = ((by - ay) * (ax - x) - (bx - ax) * (ay - y)) / ((by - ay) * math.cos(theta) - (bx - ax) * math.sin(theta))
+        
+            hitting_point = (x + m * math.cos(theta), y + m * math.sin(theta))
+            
+            #calculate angle
+            dis = math.sqrt((ay-by)**2+(bx-ax)**2) 
+            beta = math.acos(((math.cos(theta)*(ay-by)+math.sin(theta)*(bx-ax))/(dis))
+            
+            #check if it hits the wall
+            if (min(ax, bx) <= hitting_point[0] <= max(ax, bx) and min(ay, by) <= hitting_point[1] <= max(ay, by)):
+                if beta < maxAngle:
+                    hit_m = min(hit_m, m)
+                
+        p = exp(-((z - m)**2) / (2 * st_dev**2)) + K
+        
+        return p
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
