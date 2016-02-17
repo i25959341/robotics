@@ -12,9 +12,11 @@ interface.initialize()
 
 motors = [2,3]
 
+
 initInterface(interface, motors)
 
 particleSet=initParticles(100)
+
 
 
 line1 = (200, 200, 200, 600) 
@@ -31,11 +33,13 @@ newparticleSet = scale(particleSet)
 
 print "drawParticles:" + str(newparticleSet)
 
-for i in range(5):
-    particleSet = go10Cm(interface, motors, particleSet)
-    newparticleSet = scale(particleSet)
-    print "drawParticles:" + str(newparticleSet)
-    print newparticleSet
+for i in range(4):
+    for j in range(4):
+        particleSet = go10Cm(interface, motors, particleSet)
+        newparticleSet = scale(particleSet)
+        print "drawParticles:" + str(newparticleSet)
+        print newparticleSet
+
     particleSet = turn90Deg(interface, motors, particleSet)
     newparticleSet = scale(particleSet)
     print "drawParticles:" + str(newparticleSet)

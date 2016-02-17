@@ -44,7 +44,7 @@ def initInterface(interface, motors):
 
 
 def goStraight(distCm, interface, motors):
-    radianPerCm = 0.3625
+    radianPerCm = 0.3725
     angle = distCm * radianPerCm 
     interface.increaseMotorAngleReferences(motors, [angle, angle])
 
@@ -55,7 +55,7 @@ def goStraight(distCm, interface, motors):
     
 
 def turn(angleDeg, interface, motors):
-    radianPerDegre = 0.05622222222
+    radianPerDegre = 0.06355
     angle = angleDeg * radianPerDegre 
     interface.increaseMotorAngleReferences(motors, [angle, -angle])
 
@@ -73,9 +73,9 @@ def initParticles(NUMBER_OF_PARTICLES):
     return particleSet
 
 def go10Cm(interface, motors, particleSet):
-    ePer10cm=1
-    fPer10cm=1
-    D=40
+    ePer10cm=0.2
+    fPer10cm=0.2
+    D=10
     newparticleSet=[]
     
     goStraight(D, interface, motors)
@@ -91,7 +91,7 @@ def go10Cm(interface, motors, particleSet):
 
             
 def turn90Deg(interface, motors, particleSet):
-    gPer90=5
+    gPer90=1
     newparticleSet=[]
     angle = 90
 
@@ -116,7 +116,7 @@ def scale(particleSet):
         newparticleSet.append(new_particle)        
     return (newparticleSet)
 
-def position(particleSet,NUMBER_OF_PARTICLES):
+def position(particleSet, NUMBER_OF_PARTICLES):
     sumX=0
     sumY=0
     sumTheta=0
@@ -135,8 +135,8 @@ def position(particleSet,NUMBER_OF_PARTICLES):
     
 
 def go(distCm,interface, motors, particleSet):
-    ePer10cmSqt=1
-    fPer10cmSqt=1
+    ePer10cmSqt=0.01
+    fPer10cmSqt=0.01
     
     ePer10cm=math.sqrt(ePer10cmSqt*abs(distCm)/10)
     fPer10cm=math.sqrt(ePer10cmSqt*abs(distCm)/10)
@@ -157,7 +157,7 @@ def go(distCm,interface, motors, particleSet):
     return (newparticleSet)
     
 def rotate(angleDeg,interface, motors, particleSet):
-    gPer90Sqt=25
+    gPer90Sqt=0.1
     
     gPer90=math.sqrt(gPer90Sqt*abs(angleDeg)/90)
     newparticleSet=[]
@@ -190,7 +190,7 @@ def navigate(interface, motors,particleSet):
         dy = destY - currentY
         
         
-        D = math.sqrt(dx*dx+dy+dy)
+        D = math.sqrt(dx*dx+dy*dy)
         alpha = math.atan2(dy,dx)
         
         beta = alpha - currentTheta/360*2*pi
@@ -208,8 +208,6 @@ def navigate(interface, motors,particleSet):
         currentX=currentposition[0]
         currentY=currentposition[1]
         currentTheta=currentposition[2]
-        #currentX=destX
-        #currentY=destY
-        #currentTheta=alpha
-        
+
+
         
