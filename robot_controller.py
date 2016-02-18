@@ -3,6 +3,62 @@ import time
 import random
 import math
 
+# A Canvas class for drawing a map and particles:
+#     - it takes care of a proper scaling and coordinate transformation between
+#      the map frame of reference (in cm) and the display (in pixels)
+class Canvas:
+    def __init__(self,map_size=210):
+        self.map_size    = map_size;    # in cm;
+        self.canvas_size = 768;         # in pixels;
+        self.margin      = 0.05*map_size;
+        self.scale       = self.canvas_size/(map_size+2*self.margin);
+
+    def drawLine(self,line):
+        x1 = self.__screenX(line[0]);
+        y1 = self.__screenY(line[1]);
+        x2 = self.__screenX(line[2]);
+        y2 = self.__screenY(line[3]);
+        print "drawLine:" + str((x1,y1,x2,y2))
+
+    def drawParticles(self,data):
+        display = [(self.__screenX(d[0]),self.__screenY(d[1])) + d[2:] for d in data];
+        print "drawParticles:" + str(display);
+
+    def __screenX(self,x):
+        return (x + self.margin)*self.scale
+
+    def __screenY(self,y):
+        return (self.map_size + self.margin - y)*self.scale
+
+# A Map class containing walls
+class Map:
+    def __init__(self):
+        self.walls = [];
+
+    def add_wall(self,wall):
+        self.walls.append(wall);
+
+    def clear(self):
+        self.walls = [];
+
+    def draw(self):
+        for wall in self.walls:
+            canvas.drawLine(wall);
+
+# Simple Particles set
+class Particles:
+    def __init__(self):
+        self.n = 100;    
+        self.data = [];
+
+    def update(self):
+        self.data = [(calcX(), calcY(), calcTheta(), calcW()) for i in range(self.n)];
+    
+    def draw(self):
+        canvas.drawParticles(self.data);
+        
+        
+        
 class RobotController:
     def __init__(self):
         self.motors = [2,3]
@@ -10,6 +66,11 @@ class RobotController:
         self.initInterface()
         self.initWall()
         self.pi =3.14159265359
+        self.particleSet=[]
+        self.NUMBER_OF_PARTICLES=100
+        self.initParticles()
+        self.radianPerCm = 0.3725
+        self.radianPerDegre = 0.06405
 
     def initInterface(self):
         self.interface = brickpi.Interface()
@@ -18,13 +79,13 @@ class RobotController:
         self.interface.motorEnable(self.motors[0])
         self.interface.motorEnable(self.motors[1])
 
+        motorParams = self.interface.MotorAngleControllerParameters()
         motorParams.maxRotationSpeed = 13.0
         motorParams.feedForwardGain = 255/20.0
         motorParams.minPWM = 18.0
         motorParams.pidParameters.minOutput = -255.0
         motorParams.pidParameters.maxOutput = 255.0
         motorParams.pidParameters.k_p = 250.0
-        motorParams = self.interface.MotorAngleControllerParameters()
         motorParams.maxRotationAcceleration = 8.0
         motorParams.pidParameters.k_i = 809.0909
         motorParams.pidParameters.k_d = 11.0
@@ -47,18 +108,18 @@ class RobotController:
         
     def initWall(self):
         self.wall = []
-        wall.append((0,0,0,168))
-        wall.append((0,168,84,168))
-        wall.append((84,126,84,210))
-        wall.append((84,210,168,210))
-        wall.append((168,210,168,84))
-        wall.append((168,84,210,84))
-        wall.append((210,84,210,0))
-        wall.append((210,0,0,0))
+        self.wall.append((0,0,0,168))
+        self.wall.append((0,168,84,168))
+        self.wall.append((84,126,84,210))
+        self.wall.append((84,210,168,210))
+        self.wall.append((168,210,168,84))
+        self.wall.append((168,84,210,84))
+        self.wall.append((210,84,210,0))
+        self.wall.append((210,0,0,0))
 
     def goStraight(self, distCm):
-        radianPerCm = 0.3725
-        angle = distCm * radianPerCm
+        #radianPerCm = 0.3725
+        angle = distCm * self.radianPerCm
         self.interface.increaseMotorAngleReferences(self.motors, [angle, angle])
 
         while not self.interface.motorAngleReferencesReached(self.motors) :
@@ -67,52 +128,52 @@ class RobotController:
             ## Maybe add a break after x seconds
 
     def turn(self, angleDeg):
-        radianPerDegre = 0.06405
-        angle = angleDeg * radianPerDegre
+        #radianPerDegre = 0.06405
+        angle = angleDeg * self.radianPerDegre
         self.interface.increaseMotorAngleReferences(self.motors, [angle, -angle])
 
         while not self.interface.motorAngleReferencesReached(self.motors) :
             motorAngles = self.interface.getMotorAngles(self.motors)
             time.sleep(0.1)
 
-    def initParticles(self, NUMBER_OF_PARTICLES):
-        particleSet=[]
-        weight = 1/NUMBER_OF_PARTICLES
-        tuple =(0,0,0)
-        for i in range(NUMBER_OF_PARTICLES):
-            particleSet.append(tuple)
+    def initParticles(self):
+        self.particleSet = []
+        weight = 1/self.NUMBER_OF_PARTICLES
+        tuple =(0,0,0,weight)
+        for i in range(self.NUMBER_OF_PARTICLES):
+            self.particleSet.append(tuple)
 
-        return particleSet
 
-    def go10Cm(self, particleSet):
+    def go10Cm(self):
         ePer10cm = 0.2
         fPer10cm = 0.2
         D = 10
         newparticleSet = []
 
         self.goStraight(D)
-        for particle in particleSet:
+        
+        for particle in self.particleSet:
             error = random.gauss(0, ePer10cm)
             x = particle[0]+((D+error)*math.cos(particle[2]/(360)*2*3.14))
             y = particle[1]+((D+error)*math.sin(particle[2]/(360)*2*3.14))
             theta = (particle[2]+random.gauss(0,fPer10cm))%360
-            particle = (x, y, theta)
+            particle = (x, y, theta,particle[3])
             newparticleSet.append(particle)
 
-        return (newparticleSet)
+        self.particleSet = newparticleSet
 
-    def turn90Deg(self, particleSet):
+    def turn90Deg(self):
         gPer90 = 1
         newparticleSet = []
         angle = 90
 
         self.turn(angle)
-        for particle in particleSet:
+        for particle in self.particleSet:
             new_angle = (particle[2] + angle + random.gauss(0,gPer90))%360
-            new_particle = (particle[0], particle[1], new_angle)
+            new_particle = (particle[0], particle[1], new_angle ,particle[3])
             newparticleSet.append(new_particle)
 
-        return (newparticleSet)
+        self.particleSet = (newparticleSet)
 
     def scale(self, particleSet):
         newparticleSet=[]
@@ -128,23 +189,36 @@ class RobotController:
             newparticleSet.append(new_particle)
         return (newparticleSet)
 
-    def position(self, particleSet, NUMBER_OF_PARTICLES):
+    def position(self):
         sumX = 0
         sumY = 0
         sumTheta = 0
 
-        for particle in particleSet:
+        for particle in self.particleSet:
             sumX=sumX+particle[0]
             sumY=sumY+particle[1]
             sumTheta=sumTheta+particle[2]
 
-        sumX=sumX/NUMBER_OF_PARTICLES
-        sumY=sumY/NUMBER_OF_PARTICLES
-        sumTheta=(sumTheta/NUMBER_OF_PARTICLES)%360
+        sumX=sumX/self.NUMBER_OF_PARTICLES
+        sumY=sumY/self.NUMBER_OF_PARTICLES
+        sumTheta=(sumTheta/self.NUMBER_OF_PARTICLES)%360
 
         return (sumX, sumY, sumTheta)
+    
+    def position2(self):
+        sumX = 0
+        sumY = 0
+        sumTheta = 0
+        
+        for particle in self.particleSet:
+            sumX=sumX+particle[0]*particle[3]
+            sumY=sumY+particle[1]*particle[3]
+            sumTheta=sumTheta+particle[2]*particle[3]
+            
+        return (sumX, sumY, sumTheta)    
+        
 
-    def go(self, distCm, particleSet):
+    def go(self, distCm):
         ePer10cmSqt=0.01
         fPer10cmSqt=0.01
 
@@ -156,17 +230,17 @@ class RobotController:
 
         self.goStraight(D)
 
-        for particle in particleSet:
+        for particle in self.particleSet:
             error = random.gauss(0,ePer10cm)
             x = particle[0]+((D+error)*math.cos(particle[2]/(360)*2*3.14))
             y = particle[1]+((D+error)*math.sin(particle[2]/(360)*2*3.14))
             theta = (particle[2]+random.gauss(0,fPer10cm))%360
-            particle = (x, y, theta)
+            particle = (x, y, theta, particle[3])
             newparticleSet.append(particle)
 
-        return (newparticleSet)
+        self.particleSet = (newparticleSet)
 
-    def rotate(self, angleDeg, particleSet):
+    def rotate(self, angleDeg):
         gPer90Sqt = 0.1
 
         gPer90 = math.sqrt(gPer90Sqt*abs(angleDeg)/90)
@@ -174,14 +248,14 @@ class RobotController:
         angle = angleDeg
 
         self.turn(angle)
-        for particle in particleSet:
+        for particle in self.particleSet:
             new_angle = (particle[2] + angle + random.gauss(0,gPer90))%360
-            new_particle = (particle[0], particle[1], new_angle)
+            new_particle = (particle[0], particle[1], new_angle, particle[3])
             newparticleSet.append(new_particle)
 
-        return (newparticleSet)
+        self.particleSet =  (newparticleSet)
 
-    def navigate(self, particleSet):
+    def navigate(self):
         currentX = 0
         currentY = 0
         currentTheta = 0
@@ -207,10 +281,10 @@ class RobotController:
             elif beta<=-pi:
                 beta = beta + 2*pi
 
-            newparticleSet = self.rotate(360*beta/(2*pi), particleSet)
-            newparticleSet2 = self.go(D, newparticleSet)
+            self.rotate(360*beta/(2*pi))
+            self.go(D)
 
-            currentposition = self.position(newparticleSet2, 100)
+            currentposition = self.position(self.particleSet)
 
             currentX=currentposition[0]
             currentY=currentposition[1]
@@ -221,12 +295,12 @@ class RobotController:
         theta = theta/360 * self.pi
         
         st_dev = 1.0
-        K = 0.001
+        K = 0.001    # fat tails
         maxAngle= 0.610865
         
         hit_m = 100000
         
-        for wall in self.walls:  
+        for wall in self.walls:       
             (ax, ay, bx, by) = wall
             m = ((by - ay) * (ax - x) - (bx - ax) * (ay - y)) / (((by - ay) * math.cos(theta) - (bx - ax) * math.sin(theta))+0.00000000000001)
             
@@ -246,11 +320,12 @@ class RobotController:
         return p
     
     
-    def getSonarReading(self):        
+    def getSonarReading(self):  
+        usReading=[]
         for i in range(5):        
-            usReading[i] = interface.getSensorValue(self.port)
+            usReading[i] = self.interface.getSensorValue(self.port)
 
-            if !usReading :
+            if not usReading :
                 print "Failed US reading"           
         
         time.sleep(0.01)
@@ -258,6 +333,146 @@ class RobotController:
         usReading.sort()
         
         return usReading[2]
+    
+    def updateParticles(self):
+        z = self.getSonarReading()
+        t = 16.3
+        z = z+t
+        
+        newParticles=[]
+        
+        for particle in self.particleSet:
+            (x,y,theta,w)= particle
+            likelihood = self.calculate_likelihood(x, y, theta, z)
+            newParticles.append((x,y,theta,w*likelihood))           
+            
+        self.particleSet=newParticles
+        self.normalise()
+        self.resampling()
+        
+        
+        
+    def normalise(self):
+        sumOfWeight=0
+        newParticles=[]
+        
+        for particle in self.particleSet:
+            sumOfWeight=sumOfWeight+particle[3]
+            
+        
+        for particle in self.particleSet:
+            (x,y,z,w) = particle
+            newParticles.append((x,y,z,w/sumOfWeight))
+            
+        self.particleSet=newParticles
+        
+        
+    
+        
+    def resampling(self):        
+        cumulative=[particleSet[0]]
+        newParticleSet=[]
+        
+        for particle in self.particleSet[1:]:
+            (x,y,theta,w)=particle
+            cumulative.append((x,y,theta,w+cumulative[-1][3]))
+            
+        for particle1 in self.particleSet:
+            i=random.random()
+            for particle2 in cumulative:
+                if(i<=particle2[3]):
+                    (x,y,theta,w)=particle2
+                    newParticleSet.append((x,y,theta,1/self.NUMBER_OF_PARTICLES))
+                    break
+        
+        self.particleSet=newParticleSet
+        
+               
+        
+          
+    def go2(self, distCm):
+        ePer10cmSqt=0.01
+        fPer10cmSqt=0.01
+
+        ePer10cm=math.sqrt(ePer10cmSqt*abs(distCm)/10)
+        fPer10cm=math.sqrt(ePer10cmSqt*abs(distCm)/10)
+        
+        D=distCm/4
+        newparticleSet=[]
+        
+        for i in range(4):           
+            self.goStraight(D)       
+            for particle in self.particleSet:
+                error = random.gauss(0,ePer10cm)
+                x = particle[0]+((D+error)*math.cos(particle[2]/(360)*2*3.14))
+                y = particle[1]+((D+error)*math.sin(particle[2]/(360)*2*3.14))
+                theta = (particle[2]+random.gauss(0,fPer10cm))%360
+                particle = (x, y, theta, particle[3])
+                newparticleSet.append(particle)
+
+            self.particleSet = (newparticleSet)
+            self.updateParticles()
+            
+    def rotate2(self, angleDeg):
+        gPer90Sqt = 0.1
+
+        gPer90 = math.sqrt(gPer90Sqt*abs(angleDeg)/90)
+        newparticleSet = []
+        angle = angleDeg
+
+        for i in range(4):
+            self.turn(angle)
+            for particle in self.particleSet:
+                new_angle = (particle[2] + angle + random.gauss(0,gPer90))%360
+                new_particle = (particle[0], particle[1], new_angle, particle[3])
+                newparticleSet.append(new_particle)
+
+            self.particleSet =  (newparticleSet)
+            self.updateParticles()
+            
+            
+    def navigate2(self):
+        currentX = 0
+        currentY = 0
+        currentTheta = 0
+
+        pi = 3.14159265359
+
+        print "Ctr-C to cancel"
+
+        while True:
+            destX=input('Please Enter the X co-ordinate  ')
+            destY=input('Please Enter the Y co-ordinate  ')
+
+            dx = destX - currentX
+            dy = destY - currentY
+
+            D = math.sqrt(dx*dx+dy+dy)
+            alpha = math.atan2(dy,dx)
+
+            beta = alpha - currentTheta/360*2*pi
+
+            if beta > pi:
+                beta = beta - 2*pi
+            elif beta<=-pi:
+                beta = beta + 2*pi
+
+            self.rotate2(360*beta/(2*pi))
+            self.go2(D)
+
+            currentposition = self.position(self.particleSet)
+
+            currentX=currentposition[0]
+            currentY=currentposition[1]
+            currentTheta=currentposition[2]
+            
+            
+            
+            
+            
+            
+        
+        
         
         
         
