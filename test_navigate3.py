@@ -5,31 +5,37 @@ import time
 import sys
 import random
 import numpy as np
-from bot_utilities import *
+from robot_controller import RobotController
 
-interface=brickpi.Interface()
-interface.initialize()
+from particleDataStructures import *
 
-motors = [2,3]
+can = Canvas()
+mymap = Map(can);
+particle = Particles(can)
 
-initInterface(interface, motors)
+mymap.add_wall((0,0,0,168));        # a
+mymap.add_wall((0,168,84,168));     # b
+mymap.add_wall((84,126,84,210));    # c
+mymap.add_wall((84,210,168,210));   # d
+mymap.add_wall((168,210,168,84));   # e
+mymap.add_wall((168,84,210,84));    # f
+mymap.add_wall((210,84,210,0));     # g
+mymap.add_wall((210,0,0,0));        # h
 
-particleSet=initParticles(100)
+mymap.add_wall((84,30,180,30));
+mymap.add_wall((180,30,180,54));
+mymap.add_wall((180,54,138,54));
+mymap.add_wall((138,54,138,168));
+mymap.add_wall((138,168,114,168));
+mymap.add_wall((114,168,114,84));
+mymap.add_wall((114,84,84,84));
+mymap.add_wall((84,84,84,30));
 
+mymap.draw();
 
-line1 = (200, 200, 200, 600) 
-line2 = (200, 200, 600, 200)
-line3 = (600, 600, 600, 200)
-line4 = (600, 600, 200, 600)
+controller = RobotController(particle)
 
-print "drawLine:" + str(line1)
-print "drawLine:" + str(line2)
-print "drawLine:" + str(line3)
-print "drawLine:" + str(line4)
+particleSet = controller.initParticles()
 
-newparticleSet = scale(particleSet)
-
-print "drawParticles:" + str(newparticleSet)
-
-
-navigate(interface, motors,particleSet)
+controller.rotate2(180)
+controller.go2(82)

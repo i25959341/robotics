@@ -17,6 +17,10 @@ initInterface(interface, motors)
 particleSet=initParticles(100)
 
 
+
+
+
+'''
 line1 = (200, 200, 200, 600) 
 line2 = (200, 200, 600, 200)
 line3 = (600, 600, 600, 200)
@@ -33,3 +37,4 @@ print "drawParticles:" + str(newparticleSet)
 
 
 navigate(interface, motors,particleSet)
+'''
