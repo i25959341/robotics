@@ -15,7 +15,7 @@ class RobotController:
         self.NUMBER_OF_PARTICLES=100
         self.initParticles()
         self.radianPerCm = 0.3725
-        self.radianPerDegre = 0.06275
+        self.radianPerDegre = 0.062985
         self.particle = _particle
 
     def initInterface(self):
@@ -26,25 +26,25 @@ class RobotController:
         self.interface.motorEnable(self.motors[1])
 
         motorParams = self.interface.MotorAngleControllerParameters()
-        motorParams.maxRotationSpeed = 13.0
+        motorParams.maxRotationAcceleration = 5.0
+        motorParams.maxRotationSpeed = 9.0
         motorParams.feedForwardGain = 255/20.0
         motorParams.minPWM = 18.0
         motorParams.pidParameters.minOutput = -255.0
         motorParams.pidParameters.maxOutput = 255.0
         motorParams.pidParameters.k_p = 250.0
-        motorParams.maxRotationAcceleration = 8.0
-        motorParams.pidParameters.k_i = 809.0909
+        motorParams.pidParameters.k_i = 1009.0909
         motorParams.pidParameters.k_d = 11.0
 
         motorParams2 = self.interface.MotorAngleControllerParameters()
-        motorParams2.maxRotationAcceleration = 8.0
-        motorParams2.maxRotationSpeed = 13.0
+        motorParams2.maxRotationAcceleration = 5.0
+        motorParams2.maxRotationSpeed = 9.0
         motorParams2.feedForwardGain = 255/20.0
         motorParams2.minPWM = 18.0
         motorParams2.pidParameters.minOutput = -255.0
         motorParams2.pidParameters.maxOutput = 255.0
         motorParams2.pidParameters.k_p = 250.0
-        motorParams2.pidParameters.k_i = 852.1739
+        motorParams2.pidParameters.k_i = 1052.1739
         motorParams2.pidParameters.k_d = 11.5
 
         self.interface.setMotorAngleControllerParameters(self.motors[0], motorParams)

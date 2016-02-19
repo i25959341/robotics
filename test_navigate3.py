@@ -37,5 +37,6 @@ controller = RobotController(particle)
 
 particleSet = controller.initParticles()
 
-controller.rotate2(180)
-controller.go2(82)
+#controller.go2(82)
+controller.rotate2(360)
+#controller.go2(82)

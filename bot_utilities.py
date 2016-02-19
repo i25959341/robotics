@@ -18,25 +18,25 @@ def initInterface(interface, motors):
     interface.motorEnable(motors[1])
 
     motorParams = interface.MotorAngleControllerParameters()
-    motorParams.maxRotationAcceleration = 8.0
-    motorParams.maxRotationSpeed = 13.0
+    motorParams.maxRotationAcceleration = 3.0
+    motorParams.maxRotationSpeed = 8.0
     motorParams.feedForwardGain = 255/20.0
     motorParams.minPWM = 18.0
     motorParams.pidParameters.minOutput = -255.0
     motorParams.pidParameters.maxOutput = 255.0
     motorParams.pidParameters.k_p = 250.0
-    motorParams.pidParameters.k_i = 809.0909
+    motorParams.pidParameters.k_i = 1009.0909
     motorParams.pidParameters.k_d = 11.0
 
     motorParams2 = interface.MotorAngleControllerParameters()
-    motorParams2.maxRotationAcceleration = 8.0
-    motorParams2.maxRotationSpeed = 13.0
+    motorParams2.maxRotationAcceleration = 3.0
+    motorParams2.maxRotationSpeed = 8.0
     motorParams2.feedForwardGain = 255/20.0
     motorParams2.minPWM = 18.0
     motorParams2.pidParameters.minOutput = -255.0
     motorParams2.pidParameters.maxOutput = 255.0
     motorParams2.pidParameters.k_p = 250.0
-    motorParams2.pidParameters.k_i = 852.1739
+    motorParams2.pidParameters.k_i = 1052.1739
     motorParams2.pidParameters.k_d = 11.5
 
     interface.setMotorAngleControllerParameters(motors[0],motorParams)
@@ -55,7 +55,9 @@ def goStraight(distCm, interface, motors):
     
 
 def turn(angleDeg, interface, motors):
-    radianPerDegre = 0.06405
+    #radianPerDegre = 0.0697
+    radianPerDegre = 0.8
+    
     angle = angleDeg * radianPerDegre 
     interface.increaseMotorAngleReferences(motors, [angle, -angle])
 
