@@ -15,7 +15,9 @@ class RobotController:
         self.NUMBER_OF_PARTICLES=100
         self.initParticles()
         self.radianPerCm = 0.3725
-        self.radianPerDegre = 0.062985
+        self.radianPerDegre = 0.0642
+        #self.radianPerDegreNeg = 0.064
+        self.radianPerDegreNeg = 0.0630
         self.particle = _particle
 
     def initInterface(self):
@@ -75,7 +77,11 @@ class RobotController:
 
     def turn(self, angleDeg):
         #radianPerDegre = 0.06405
-        angle = angleDeg * self.radianPerDegre
+        if angleDeg>0:
+            angle = angleDeg * self.radianPerDegre
+        else:
+            angle = angleDeg * self.radianPerDegreNeg
+
         self.interface.increaseMotorAngleReferences(self.motors, [angle, -angle])
 
         while not self.interface.motorAngleReferencesReached(self.motors) :
@@ -329,7 +335,7 @@ class RobotController:
         self.particleSet=newParticles
         self.normalise()
         self.resampling()
-        
+
         print "after" + str(self.particleSet)
 
 
@@ -421,6 +427,7 @@ class RobotController:
 
         return math.sqrt(dx*dx+dy*dy)
 
+    
 
     def navigate2(self):
         points = [
@@ -462,15 +469,16 @@ class RobotController:
 
             D = self.distance_to_target(destX, destY, currentX, currentY)
             while D > 0:
-                #print 'D' + str(D)
+                if (D < 15):
+                    break
                 self.go2(min(D, 15))
                 self.particle.update(self.particleSet)
                 self.particle.draw()
-                if (D < 5):
-                    break
+                #if (D < 5):
+                    #break
                 currentposition = self.position2()
                 D = self.distance_to_target(destX, destY, currentposition[0], currentposition[1])
-
+            self.go2(D)
 
             currentposition = self.position2()
 
