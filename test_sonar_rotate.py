@@ -37,9 +37,9 @@ controller = RobotController(particle)
 
 particleSet = controller.initParticles()
 
-controller.rotate2(-90)
-controller.rotate2(90)
-#time.sleep(2)
-#controller.go2(-80)
-#controller.rotate2(-360)
+#controller.go2(82)
+controller.turnSonar90()
+
+time.sleep(3)
+controller.turnSonar90Neg()
 #controller.go2(82)

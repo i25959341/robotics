@@ -9,39 +9,37 @@ motors = [2,3]
 interface.motorEnable(motors[0])
 interface.motorEnable(motors[1])
 
-gain=500.0
-
 motorParams = interface.MotorAngleControllerParameters()
-motorParams.maxRotationAcceleration = 10.0
+motorParams.maxRotationAcceleration = 8.0
 motorParams.maxRotationSpeed = 16.0
 motorParams.feedForwardGain = 255/20.0
 motorParams.minPWM = 18.0
 motorParams.pidParameters.minOutput = -255
 motorParams.pidParameters.maxOutput = 255
-motorParams.pidParameters.k_p = gain
-motorParams.pidParameters.k_i = 0.0
-motorParams.pidParameters.k_d = 0.0
+motorParams.pidParameters.k_p = 240.0
+motorParams.pidParameters.k_i = 1309.0909
+motorParams.pidParameters.k_d = 11.0
 
 motorParams2 = interface.MotorAngleControllerParameters()
-motorParams2.maxRotationAcceleration = 10.0
+motorParams2.maxRotationAcceleration = 8.0
 motorParams2.maxRotationSpeed = 16.0
 motorParams2.feedForwardGain = 255/20.0
 motorParams2.minPWM = 18.0
 motorParams2.pidParameters.minOutput = -255
 motorParams2.pidParameters.maxOutput = 255
-motorParams2.pidParameters.k_p = gain
-motorParams2.pidParameters.k_i = 0.0
-motorParams2.pidParameters.k_d = 0.0
+motorParams2.pidParameters.k_p = 240.0
+motorParams2.pidParameters.k_i = 1252.173913
+motorParams2.pidParameters.k_d = 11.5
 
 interface.setMotorAngleControllerParameters(motors[0],motorParams)
 interface.setMotorAngleControllerParameters(motors[1],motorParams2)
 
-brickpi.Interface.startLogging(interface,"moter2_"+str(gain)+".txt")
+brickpi.Interface.startLogging(interface,"test.txt")
 
 while True:
 	angle = float(input("Enter a angle to rotate (in radians): "))
 
-	interface.increaseMotorAngleReferences(motors,[angle,angle])
+	interface.increaseMotorAngleReferences(motors,[angle,-angle])
 
 	while not interface.motorAngleReferencesReached(motors) :
 		motorAngles = interface.getMotorAngles(motors)

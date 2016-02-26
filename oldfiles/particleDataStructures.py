@@ -6,7 +6,18 @@ import time
 import random
 import math
 
+# Functions to generate some dummy particles data:
+def calcX():
+    return random.gauss(80,3) + 70*(math.sin(t)); # in cm
 
+def calcY():
+    return random.gauss(70,3) + 60*(math.sin(2*t)); # in cm
+
+def calcW():
+    return random.random();
+
+def calcTheta():
+    return random.randint(0,360);
 
 # A Canvas class for drawing a map and particles:
 #     - it takes care of a proper scaling and coordinate transformation between
