@@ -26,20 +26,37 @@ mymap.add_wall((84,30,180,30));
 mymap.add_wall((180,30,180,54));
 mymap.add_wall((180,54,138,54));
 mymap.add_wall((138,54,138,168));
-mymap.add_wall((138,168,114,168));
-mymap.add_wall((114,168,114,84));
-mymap.add_wall((114,84,84,84));
-mymap.add_wall((84,84,84,30));
+mymap.add_wall((138,168, 138, 30));
+mymap.add_wall((138, 30,84,30));
+
+
 
 mymap.draw();
 
 controller = RobotController(particle)
 
-particleSet = controller.initParticles()
+#time.sleep(0.5)
+#controller.rotate2(-360)
 
-controller.rotate2(-90)
-controller.rotate2(90)
+#particleSet = controller.initParticles()
+
+#controller.characterize_location_real_time()
+
+#controller.navigate2(84, 30,0, 0)
+
+
+controller.navigate_challenge()
+
+
+
+#sig=controller.recognize_location_invariant()
+
+
+
+
+#controller.rotate2(-360)
+#controller.rotate2(90)
 #time.sleep(2)
-#controller.go2(-80)
+#controller.go2(80)
 #controller.rotate2(-360)
 #controller.go2(82)

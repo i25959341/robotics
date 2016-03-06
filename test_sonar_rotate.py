@@ -5,7 +5,7 @@ import time
 import sys
 import random
 import numpy as np
-from robot_controller import RobotController
+from robot_controller import *
 
 from particleDataStructures import *
 
@@ -38,8 +38,12 @@ controller = RobotController(particle)
 particleSet = controller.initParticles()
 
 #controller.go2(82)
-controller.turnSonar90()
+#controller.turnSonar90()
+self.turnSonar(-90)
 
 time.sleep(3)
 controller.turnSonar90Neg()
 #controller.go2(82)
+controller.turnSonar90Neg()
+controller.turnSonar90Neg()
+controller.turnSonar90Neg()
